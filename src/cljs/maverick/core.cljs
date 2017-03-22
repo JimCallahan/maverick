@@ -1,8 +1,8 @@
 (ns maverick.core
     (:require [reagent.core :as reagent]
-              [re-frame.core :as re-frame]
+              [re-frame.core :as rf]
               [re-frisk.core :refer [enable-re-frisk!]]
-              [maverick.events]
+              [maverick.events :as events]
               [maverick.subs]
               [maverick.views :as views]
               [maverick.config :as config]))
@@ -15,11 +15,11 @@
     (println "dev mode")))
 
 (defn mount-root []
-  (re-frame/clear-subscription-cache!)
+  (rf/clear-subscription-cache!)
   (reagent/render [views/main-panel]
                   (.getElementById js/document "app")))
 
 (defn ^:export init []
-  (re-frame/dispatch-sync [:initialize-db])
+  (rf/dispatch-sync [::events/initialize-db])
   (dev-setup)
   (mount-root))
