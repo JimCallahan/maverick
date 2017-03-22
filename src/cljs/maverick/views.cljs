@@ -29,7 +29,7 @@
                :y (dec (- rows j))}])]))
 
 (defn pieces []
-  (let [ps (listen [::subs/position])]
+  (let [ps (listen [::subs/current-position])]
     (into [:g]
           (for [[[i j] {:keys [::db/color ::db/kind]}] ps]
             [pieces/piece color kind i j]))))

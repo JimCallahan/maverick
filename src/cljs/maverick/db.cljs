@@ -2,7 +2,7 @@
   (:require [clojure.spec :as s]))            
 
 ;;------------------------------------------------------------------------------
-;; Specs
+;; Specs.
 ;;------------------------------------------------------------------------------
 
 ;;
@@ -48,16 +48,62 @@
 
 (s/def ::kind kind?)
 
+;; A chess piece.
+(def piece? (s/keys :req [::color ::kind]))
+
+;; The location of a chess piece on the board.
+(def location? (s/tuple pos-int? pos-int?))
+
+;; The map of all pieces on the board by their locations.
+(s/def ::locations (s/map-of location? piece?))
+
+;; The move number.
+(s/def ::move-number pos-int?)
+
+;; The position of all pieces at a particular move in the game.
+(def position? (s/keys ::req [::move-number ::color ::locations]))
+
+;; Every position in the game from newest to oldest.
+(s/def ::positions (s/every position? :kind list?))
+
+  
+;;
+;; Move.
+;;
+
+;; The location a piece was in at the start of a move.
+(s/def ::start-location location?)
+
+;; The location a piece was in at the end of a move.
+(s/def ::end-location location?)
+  
+;; A move of a piece from one location to another.
+(def move? (s/keys ::req [::move-number ::color ::start-location ::end-location]))
+
+;; Every move in the game from newest to oldest.
+(s/def ::moves (s/every move? :kind list?))
+
 
 ;;
 ;; Database.
 ;;
 
-(def database? (s/keys :req [::look ::board ::position]))
+(def database? (s/keys :req [::look ::board ::moves ::positions]))
 
 
 ;;------------------------------------------------------------------------------
-;; Initialization 
+;; Validation. 
+;;------------------------------------------------------------------------------
+
+(defn valid-database?
+  "validate the given db, writing any problems to console.error"
+  [db]
+  (if-not (s/valid? database? db)
+    (.error js/console "Database is invalid!")))
+
+
+;;------------------------------------------------------------------------------
+;; Initialization. 
 ;;------------------------------------------------------------------------------
 
 (defn place
@@ -90,4 +136,5 @@
 (def default-db
   {::look {::board-size ::medium}
    ::board classic-board
-   ::position classic-position})
+   ::moves (list)
+   ::positions (list classic-position)})

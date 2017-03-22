@@ -21,6 +21,6 @@
    (::db/board db)))
 
 (rf/reg-sub
- ::position
+ ::current-position
  (fn [db _] 
-   (::db/position db)))
+   (-> (::db/positions db) first)))
