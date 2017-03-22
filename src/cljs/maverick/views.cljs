@@ -1,12 +1,18 @@
 (ns maverick.views
     (:require [re-frame.core :as rf]
               [re-com.core :as rc]
-              [maverick.subs :as subs]
-              [maverick.db :as db]))
+              [maverick.subs :as subs :refer [listen]]
+              [maverick.db :as db]
+              [maverick.pieces :as pieces]))
 
-(defn- listen
-  [query-v]
-  @(rf/subscribe query-v))
+(defn header []
+  [rc/h-box
+   :children
+   [[rc/gap :size "1"]
+    [rc/title
+     :label "Maverick"
+     :level :level1]
+    [rc/gap :size "1"]]])
 
 (defn squares []
   (let [{:keys [::db/rows ::db/cols]} (listen [::subs/board-dimens])]
@@ -22,6 +28,12 @@
                :x i
                :y (dec (- rows j))}])]))
 
+(defn pieces []
+  (let [ps (listen [::subs/position])]
+    (into [:g]
+          (for [[[i j] {:keys [::db/color ::db/kind]}] ps]
+            [pieces/piece color kind i j]))))
+
 (defn board []
   (let [{:keys [::db/rows ::db/cols]} (listen [::subs/board-dimens])
         size (listen [::subs/board-size])]
@@ -30,17 +42,9 @@
       {:view-box (str "0 0 " cols " " rows)
        :width size
        :height size}
-      [squares]]]))
+      [squares] 
+      [pieces]]]))
 
-(defn header []
-  [rc/h-box
-   :children
-   [[rc/gap :size "1"]
-    [rc/title
-     :label "Maverick"
-     :level :level1]
-    [rc/gap :size "1"]]])
-   
 (defn main-panel []
   [rc/v-box 
    :children

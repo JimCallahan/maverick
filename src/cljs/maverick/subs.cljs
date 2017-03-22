@@ -3,9 +3,13 @@
     (:require [re-frame.core :as rf]
               [maverick.db :as db]))
 
+(defn listen
+  [query-v]
+  @(rf/subscribe query-v))
+
 (rf/reg-sub
  ::board-size
- (fn [db]
+ (fn [db _]
    (case (get-in db [::db/look ::db/board-size])
      ::db/small 500
      ::db/medium 800
@@ -13,10 +17,10 @@
  
 (rf/reg-sub
  ::board-dimens
- (fn [db]
+ (fn [db _]
    (::db/board db)))
 
 (rf/reg-sub
  ::position
- (fn [db]
+ (fn [db _] 
    (::db/position db)))
