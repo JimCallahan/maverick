@@ -21,6 +21,6 @@
    (::db/board db)))
 
 (rf/reg-sub
- ::current-position
+ ::piece-locations
  (fn [db _] 
-   (-> (::db/positions db) first)))
+   (-> db ::db/current-position ::db/locations)))

@@ -51,8 +51,11 @@
 ;; A chess piece.
 (def piece? (s/keys :req [::color ::kind]))
 
+;; A non-negative integer.
+(def whole? (s/and int? (partial <= 0)))
+
 ;; The location of a chess piece on the board.
-(def location? (s/tuple pos-int? pos-int?))
+(def location? (s/tuple whole? whole?))
 
 ;; The map of all pieces on the board by their locations.
 (s/def ::locations (s/map-of location? piece?))
@@ -60,11 +63,14 @@
 ;; The move number.
 (s/def ::move-number pos-int?)
 
-;; The position of all pieces at a particular move in the game.
+;; The position currently on the board.
+(s/def ::current-position (s/keys :req [::locations]))
+
+;; The position of all pieces after a particular move has been played.
 (def position? (s/keys ::req [::move-number ::color ::locations]))
 
 ;; Every position in the game from newest to oldest.
-(s/def ::positions (s/every position? :kind list?))
+(s/def ::positions (s/every position? :kind vector?))
 
   
 ;;
@@ -76,19 +82,36 @@
 
 ;; The location a piece was in at the end of a move.
 (s/def ::end-location location?)
+
+;; The time stamp of when a move began (millis since 1970).
+(s/def ::start-stamp pos-int?)
+
+;; The time stamp of when a move ended (millis since 1970).
+(s/def ::start-stamp pos-int?)
+
+;; A partially completed move.
+(def partial-move? (s/keys ::req [::move-number ::color]
+                           ::opt [::start-location ::end-location
+                                  ::start-stamp ::end-stamp]))
+
+;; The move which is currently in progress.
+(s/def ::current-move partial-move?)
   
-;; A move of a piece from one location to another.
-(def move? (s/keys ::req [::move-number ::color ::start-location ::end-location]))
+;; A completed move.
+(def move? (s/keys ::req [::move-number ::color ::start-location ::end-location
+                          ::start-stamp ::end-stamp]))
 
-;; Every move in the game from newest to oldest.
-(s/def ::moves (s/every move? :kind list?))
-
+;; All previously completed moves. 
+(s/def ::moves (s/every move? :kind vector?))
+  
 
 ;;
 ;; Database.
 ;;
 
-(def database? (s/keys :req [::look ::board ::moves ::positions]))
+(def database? (s/keys :req [::look ::board
+                             ::current-move ::moves
+                             ::current-position ::positions]))
 
 
 ;;------------------------------------------------------------------------------
@@ -110,7 +133,8 @@
   [i j color kind]
   [[i j] {::color color ::kind kind}])
 
-(def classic-position
+;; Classic 
+(def classic-start-position
   (let [pawns (fn [c j]
                 (into {}
                       (for [i (range 0 8)]
@@ -125,16 +149,39 @@
                         (place 5 j c ::bishop)
                         (place 6 j c ::knight)
                         (place 7 j c ::rook)]))]    
-    (merge (majors :black 7)
-           (pawns :black 6)
-           (pawns :white 1)
-           (majors :white 0))))
+    {::locations (merge (majors ::black 7)
+                        (pawns ::black 6)
+                        (pawns ::white 1)
+                        (majors ::white 0))})) 
 
 (def classic-board
   {::cols 8 ::rows 8})
 
+(def classic-setup
+  {::board classic-board
+   ::current-position classic-start-position})
+
+
+;; Funky
+(def funky-setup
+  {::board {::cols 10 ::rows 8}
+   ::current-position classic-start-position})
+
+(def game-setups
+  {::classic classic-setup
+   ::funky funky-setup})
+
+
+;; Game initialization.
+(def game-start
+  {::current-move {::move-number 1
+                   ::color ::white}
+   ::moves []
+   ::positions []})
+
+
+;; App startup database state.
 (def default-db
-  {::look {::board-size ::medium}
-   ::board classic-board
-   ::moves (list)
-   ::positions (list classic-position)})
+  (merge {::look {::board-size ::medium}}
+         game-start
+         classic-setup))

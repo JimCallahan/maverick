@@ -17,3 +17,8 @@
  ::initialize-db
  (fn  [_ _]
    db/default-db))
+
+(reg-event-db
+ ::initialize-game
+ (fn [db [_ game]]
+   (merge db db/game-start (game db/game-setups))))
