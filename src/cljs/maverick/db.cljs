@@ -90,9 +90,8 @@
 (s/def ::start-stamp pos-int?)
 
 ;; A partially completed move.
-(def partial-move? (s/keys ::req [::move-number ::color]
-                           ::opt [::start-location ::end-location
-                                  ::start-stamp ::end-stamp]))
+(def partial-move? (s/keys ::req [::move-number ::color ::start-stamp]
+                           ::opt [::start-location ::end-location ::end-stamp]))
 
 ;; The move which is currently in progress.
 (s/def ::current-move partial-move?)
@@ -106,12 +105,23 @@
   
 
 ;;
+;; Interaction Feedback.
+;;
+
+;; The board location currently under the mouse.
+(s/def ::hover-location location?)
+
+(def ::feedback (s/keys ::opt [::hover-location]))
+
+
+;;
 ;; Database.
 ;;
 
-(def database? (s/keys :req [::look ::board
+(def database? (s/keys :req [::look ::board 
                              ::current-move ::moves
-                             ::current-position ::positions]))
+                             ::current-position ::positions]
+                       ::opt [::feedback]))
 
 
 ;;------------------------------------------------------------------------------
@@ -162,7 +172,7 @@
    ::current-position classic-start-position})
 
 
-;; Funky
+;; Funky, just for testing...
 (def funky-setup
   {::board {::cols 10 ::rows 8}
    ::current-position classic-start-position})
@@ -175,7 +185,8 @@
 ;; Game initialization.
 (def game-start
   {::current-move {::move-number 1
-                   ::color ::white}
+                   ::color ::white
+                   ::start-stamp (.now js/Date)}
    ::moves []
    ::positions []})
 

@@ -3,6 +3,7 @@
               [re-com.core :as rc]
               [maverick.subs :as subs :refer [listen]]
               [maverick.db :as db]
+              [maverick.events :as events]
               [maverick.pieces :as pieces]))
 
 (defn header []
@@ -26,13 +27,21 @@
                :width 1
                :height 1
                :x i
-               :y (dec (- rows j))}])]))
+               :y (dec (- rows j))
+               :on-click      #(rf/dispatch [::events/square-click [i j]])
+               :on-mouse-over #(rf/dispatch [::events/square-hover [i j]])
+               :on-mouse-out  #(rf/dispatch [::events/square-hover nil])}])]))
 
 (defn pieces []
   (let [ps (listen [::subs/piece-locations])] 
     (into [:g]
-          (for [[[i j] {:keys [::db/color ::db/kind]}] ps]
-            [pieces/piece color kind i j]))))
+          (for [[loc {:keys [::db/color ::db/kind]}] ps]
+            [pieces/piece color kind loc]))))
+
+(defn hovers []
+  [:g
+   [pieces/hover]
+   [pieces/move-start]])
 
 (defn board []
   (let [{:keys [::db/rows ::db/cols]} (listen [::subs/board-dimens])
@@ -42,7 +51,8 @@
       {:view-box (str "0 0 " cols " " rows)
        :width size
        :height size}
-      [squares] 
+      [squares]
+      [hovers]
       [pieces]]]))
 
 (defn main-panel []

@@ -2,7 +2,8 @@
   (:require [reagent.format :as fmt]
             [re-frame.core :as rf]
             [maverick.subs :as subs :refer [listen]]
-            [maverick.db :as db]))
+            [maverick.db :as db]
+            [maverick.events :as events]))
 
 (defn- path
   "An SVG `path`."
@@ -173,7 +174,8 @@
           "V 274.49"
           "c 13.21 -5.54 35.7 -27.08 33.57 -47.82"
           "C 122.07 212 111.08 183.1 113.4 159"
-          "c 1.44 -15 7.48 -31.09 5.44 -43.31 -.76 -4.56 -4.82 -10.27 -9.13 -16.64"
+          "c 1.44 -15 7.48 -31.09 5.44 -43.31 -.76 -4.56 -4.82 -10.27 -9.13"
+          " -16.64"
           "Z"])
    (path (str color "-detail")
          ["M 140.46 56.58l -4.66 1.09"
@@ -314,10 +316,33 @@
    ::db/queen    queen-elems
    ::db/king     king-elems})
 
-(defn piece [color kind i j]
+(defn loc-group
+  [class [i j]]
   (let [nj (-> (listen [::subs/board-dimens]) ::db/rows (- j) dec)
-        ss (->> (/ 1.0 360.0) (fmt/format "%.4f"))
-        cs (name color)]
-    (into [:g {:class color 
-               :transform (str "translate(" i "," nj ") scale(" ss ")")}]
+        ss (->> (/ 1.0 360.0) (fmt/format "%.4f"))]
+    [:g {:class (name class)
+         :transform (str "translate(" i "," nj ") scale(" ss ")")}]))
+
+(defn piece [color kind loc]
+  (let [cs (name color)]
+    (into (loc-group color loc)
           ((kind piece-fns) cs))))
+
+(def bracket
+  [(path ["M9,90V21A12,12,0,0,1,21,9H90"])
+   (path ["M90,351H21A12,12,0,0,1,9,339V270"])
+   (path ["M351,270v69a12,12,0,0,1-12,12H270"])
+   (path ["M270,9h69a12,12,0,0,1,12,12V90"])])
+
+(defn hover []
+  (let [loc (listen [::subs/hover-loc])]
+    (when loc
+      (into (loc-group :hover loc)
+            bracket))))
+    
+(defn move-start []
+  (let [loc (listen [::subs/start-location])]
+    (when loc
+      (into (loc-group :move loc)
+            bracket))))
+    
