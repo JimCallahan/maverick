@@ -57,8 +57,8 @@
          now (.now js/Date)]
      (if start-location
        (if (= loc start-location)
-         ;; Ignore moves that start and end on the same square.
-         db
+         ;; Cancel the move.
+         (update-in db [::db/current-move] dissoc ::db/start-location)
          ;; Make a move.
          (let [move (assoc pmove
                            ::db/end-location loc
@@ -72,7 +72,6 @@
            (-> db
                (update-in [::db/moves] conj move)
                (assoc ::db/current-move next))))
-       
        ;; Start a move.
        (->> (assoc pmove ::db/start-location loc)
             (assoc db ::db/current-move))))))

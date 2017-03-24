@@ -114,11 +114,38 @@
 (def ::feedback (s/keys ::opt [::hover-location]))
 
 
+
+;;
+;; Rules.
+;;
+
+;; Whether a there is a piece at the given location which can be moved.
+#_(s/def ::can-move? (s/fspec :args (s/cat :db map? :loc location?)
+                            :ret boolean?))
+
+;; The legal locations the piece at the given location can be moved to.
+#_(s/def ::destinations (s/fspec :args (s/cat :db map? :loc location?)
+                               :ret (s/every location? :kind vector?)))
+
+;; The legal results of a completed game.
+#_(def game-result? #{::white-win ::black-win ::draw})
+
+;; The result of the game, if complete.
+#_(s/def game-result (s/fspec :args (s/cat :db map?)
+                            :ret (s/or :going nil?
+                                       :over game-result?)))
+
+;; The required functions which implement the chess variant rules.
+#_(s/def ::rules (s/keys :req [::can-move? ::destinations ::game-result]))
+
+
+(s/def ::rules #{::classic ::funky})
+
 ;;
 ;; Database.
 ;;
 
-(def database? (s/keys :req [::look ::board 
+(def database? (s/keys :req [::look ::board ::rules
                              ::current-move ::moves
                              ::current-position ::positions]
                        ::opt [::feedback]))
@@ -167,14 +194,15 @@
 (def classic-board
   {::cols 8 ::rows 8})
 
-(def classic-setup
+(def classic-setup 
   {::board classic-board
+   ::rules ::classic
    ::current-position classic-start-position})
-
 
 ;; Funky, just for testing...
 (def funky-setup
   {::board {::cols 10 ::rows 8}
+   ::rules ::funky
    ::current-position classic-start-position})
 
 (def game-setups
