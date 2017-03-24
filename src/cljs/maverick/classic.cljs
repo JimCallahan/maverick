@@ -4,10 +4,13 @@
 
 (defn can-move?
   [db loc]
-  (let [plocs (-> db ::db/current-position ::db/locations)]
-    
+  (let [color (-> db ::db/current-move ::db/color)
+        plocs (-> db ::db/current-position ::db/locations)
+        piece (get plocs loc)]
 
-    true))
+    ;; placeholder
+    
+    (= color (::db/color piece))))
 
 
 (defn destinations

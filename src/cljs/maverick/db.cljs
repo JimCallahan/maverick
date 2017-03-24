@@ -1,5 +1,5 @@
 (ns maverick.db
-  (:require [clojure.spec :as s]))            
+  (:require [clojure.spec :as s]))
 
 ;;------------------------------------------------------------------------------
 ;; Specs.
@@ -31,7 +31,6 @@
 
 ;; The description of the board layout.
 (def board? (s/keys :req [::rows ::cols]))
-
 
 ;;
 ;; Position
@@ -97,7 +96,8 @@
 (s/def ::current-move partial-move?)
   
 ;; A completed move.
-(def move? (s/keys ::req [::move-number ::color ::start-location ::end-location
+(def move? (s/keys ::req [::move-number ::color ::kind 
+                          ::start-location ::end-location
                           ::start-stamp ::end-stamp]))
 
 ;; All previously completed moves. 
