@@ -3,6 +3,7 @@
             [re-frame.core :as rf]
             [maverick.subs :as subs :refer [listen]]
             [maverick.db :as db]
+            [maverick.board :as board]
             [maverick.events :as events]))
 
 (defn- path
@@ -318,7 +319,8 @@
 
 (defn loc-group
   [class [i j]]
-  (let [nj (-> (listen [::subs/board-dimens]) ::db/rows (- j) dec)
+  (let [{:keys [::db/rows ::db/orient]} (listen [::subs/board-layout])
+        nj (board/screen-j j rows orient)
         ss (->> (/ 1.0 360.0) (fmt/format "%.4f"))]
     [:g {:class (name class)
          :transform (str "translate(" i "," nj ") scale(" ss ")")}]))

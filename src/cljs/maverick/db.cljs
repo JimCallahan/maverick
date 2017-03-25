@@ -19,9 +19,19 @@
 (def look? (s/keys ::req [::board-size]))
 
 
+
 ;;
 ;; Board 
 ;;
+
+;; The possible colors for players and pieces.
+(def color? #{::white ::black})
+
+;; The color of a player or piece.
+(s/def ::color color?)
+
+;; The orientation of the board with respect to a player color.
+(s/def ::orient color?)
 
 ;; The number of squares horizontally direction.
 (s/def ::cols pos-int?)
@@ -30,17 +40,11 @@
 (s/def ::rows pos-int?)
 
 ;; The description of the board layout.
-(def board? (s/keys :req [::rows ::cols]))
+(def board? (s/keys :req [::rows ::cols ::orient]))
 
 ;;
 ;; Position
 ;;
-
-;; The possible colors for players and pieces.
-(def color? #{::white ::black})
-
-;; The color of a player or piece.
-(s/def ::color color?)
 
 ;; The possible kinds of chess pieces.
 (def kind? #{::pawn ::knight ::bishop ::rook ::hawk ::elephant ::queen ::king})
@@ -90,7 +94,8 @@
 
 ;; A partially completed move.
 (def partial-move? (s/keys ::req [::move-number ::color ::start-stamp]
-                           ::opt [::start-location ::end-location ::end-stamp]))
+                           ::opt [::kind ::end-stamp
+                                  ::start-location ::end-location]))
 
 ;; The move which is currently in progress.
 (s/def ::current-move partial-move?)
@@ -192,7 +197,9 @@
                         (majors ::white 0))})) 
 
 (def classic-board
-  {::cols 8 ::rows 8})
+  {::cols 8
+   ::rows 8
+   ::orient ::white})
 
 (def classic-setup 
   {::board classic-board

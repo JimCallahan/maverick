@@ -53,8 +53,7 @@
  ::square-click
  (fn [db [_ loc]]
    (let [{:keys [::db/move-number ::db/color ::db/start-location ::db/start-stamp]
-          :as pmove}
-         (::db/current-move db)
+          :as pmove} (::db/current-move db)
          now (.now js/Date)]
      (if start-location
        (if (= loc start-location)
@@ -75,8 +74,15 @@
                (assoc ::db/current-move next))))
        ;; Start a move.
        (if (classic/can-move? db loc)
-         (->> (assoc pmove ::db/start-location loc)
-              (assoc db ::db/current-move))
+         (let [kind (-> db
+                        ::db/current-position
+                        ::db/locations
+                        (get loc)
+                        ::db/kind)]
+           (->> (assoc pmove
+                       ::db/start-location loc
+                       ::db/kind kind)
+                (assoc db ::db/current-move)))
          db)))))
        
        

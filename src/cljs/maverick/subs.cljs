@@ -16,9 +16,9 @@
      ::db/medium 800
      ::db/large 1000)))
 
-;; The dimensions of the board in squares: [rows cols]
+;; The layout of the board.
 (rf/reg-sub
- ::board-dimens
+ ::board-layout 
  (fn [db _]
    (::db/board db)))
 
