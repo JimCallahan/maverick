@@ -1,7 +1,10 @@
 (ns maverick.subs
     (:require-macros [reagent.ratom :refer [reaction]])
     (:require [re-frame.core :as rf]
-              [maverick.db :as db]))
+              [maverick.db :as db]
+              [maverick.rules.api :as rules]
+              [maverick.rules.classic] 
+              [maverick.rules.core :refer [cur-rules]]))
 
 (defn listen
   [query-v]
@@ -59,5 +62,5 @@
  ::target-locations
  (fn [db _]
    (let [loc (-> db ::db/current-move ::db/start-location)]
-     (maverick.classic/destinations db loc)))) ;; make this generic!
+     (rules/destinations (cur-rules db) db loc))))
  

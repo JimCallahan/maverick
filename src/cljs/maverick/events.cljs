@@ -1,6 +1,8 @@
 (ns maverick.events
   (:require [re-frame.core :as rf]
-            [maverick.db :as db]))
+            [maverick.db :as db]
+            [maverick.rules.api :as rules]
+            [maverick.rules.core :refer [rules-for cur-rules]]))
 
 (defn- reg-event-db
   ([id handler-fn] 
@@ -21,32 +23,19 @@
 (reg-event-db
  ::initialize-db
  (fn  [_ _]
-   db/default-db))
-
-(reg-event-db
- ::initialize-game
- (fn [db [_ game]]
-   (merge db db/game-start (game db/game-setups))))
-
+   (rules/init-db (rules-for ::db/classic))))
 
 
 ;;------------------------------------------------------------------------------
 ;; Board Interactions. 
 ;;------------------------------------------------------------------------------
 
-(defn- in-bounds?
-  [db [i j]]
-  (let [{:keys [::db/board]} db
-        {:keys [::db/rows ::db/cols]} board]
-    (and i j
-         (and (<= 0 i) (< i cols))
-         (and (<= 0 j) (< j rows)))))
-
 (reg-event-db
  ::square-hover
  (fn [db [_ loc]]
    (assoc-in db [::db/feedback ::db/hover-loc]
-             (when (in-bounds? db loc) loc))))
+             (when (rules/in-bounds? (cur-rules db) db loc)
+               loc))))
 
 (reg-event-db
  ::square-click
@@ -72,7 +61,7 @@
                (update-in [::db/moves] conj move)
                (assoc ::db/current-move next))))
        ;; Start a move.
-       (if (maverick.classic/can-move? db loc) ;; make this generic!
+       (if (rules/can-move? (cur-rules db) db loc)
          (let [kind (-> db
                         ::db/current-position
                         ::db/locations

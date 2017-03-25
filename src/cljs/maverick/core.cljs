@@ -4,7 +4,8 @@
               [re-frisk.core :refer [enable-re-frisk!]]
               [maverick.events :as events]
               [maverick.subs]
-              [maverick.classic]
+              [maverick.rules.core]
+              [maverick.rules.classic]
               [maverick.views :as views]
               [maverick.config :as config]))
 
