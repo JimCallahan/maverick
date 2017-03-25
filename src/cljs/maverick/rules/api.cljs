@@ -21,10 +21,10 @@
   [rules db loc]
   (proto/can-move? rules db loc))
 
-(defn destinations
-  "The possible destinations the piece at the location can be moved."
+(defn targets
+  "The possible target locations when moving the piece at the location."
   [rules db loc]
-  (proto/destinations rules db loc))
+  (proto/targets rules db loc))
                                        
 (defn game-result
   "The result of the game, if completed."
@@ -51,7 +51,7 @@
         :ret boolean?)
 
 ;; The legal locations the piece at the given location can be moved to.
-#_(s/def ::destinations (s/fspec :args (s/cat :db map? :loc location?)
+#_(s/def ::targets  (s/fspec :args (s/cat :db map? :loc location?)
                                :ret (s/every location? :kind vector?)))
 
 ;; The legal results of a completed game.

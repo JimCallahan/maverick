@@ -21,7 +21,7 @@
 
 ;; The layout of the board.
 (rf/reg-sub
- ::board-layout 
+ ::board-layout  
  (fn [db _]
    (::db/board db)))
 
@@ -62,5 +62,5 @@
  ::target-locations
  (fn [db _]
    (let [loc (-> db ::db/current-move ::db/start-location)]
-     (rules/destinations (cur-rules db) db loc))))
+     (rules/targets (cur-rules db) db loc))))
  
