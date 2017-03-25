@@ -2,6 +2,37 @@
   (:require [maverick.db :as db]
             [maverick.rules.protocol :as proto]))
 
+;;------------------------------------------------------------------------------
+;; Helpers. 
+;;------------------------------------------------------------------------------
+
+(defn- add
+  [[ai aj] [bi bj]]
+  [(+ ai bi) (+ aj bj)])
+
+(defn- pawn-targets
+  [rules db loc]
+
+
+  nil
+  )
+
+(defn- knight-targets
+  [rules db loc]
+  (let [color (-> db ::db/current-move ::db/color)
+        plocs (-> db ::db/current-position ::db/locations)]
+    (->> [[1 2] [1 -2] [-1 2] [-1 -2]
+          [2 1] [-2 1] [2 -1] [-2 -1]]
+         (map (partial add loc))
+         (filter (partial proto/in-bounds? rules db))
+         (filter #(not= (::db/color (get plocs %)) color)))))
+
+
+
+;;------------------------------------------------------------------------------
+;; Rules Protocol Implementation.
+;;------------------------------------------------------------------------------
+
 (def rules
   (reify proto/Rules
     (init-db [_]
@@ -52,15 +83,19 @@
         
         (= color (::db/color piece))))
 
-
-    (destinations [this db loc]
+    (targets [this db loc]
       (when (proto/can-move? this db loc)
-        (let [plocs (-> db ::db/current-position ::db/locations)
-              {:keys [::db/kind ::db/color]} (get plocs loc)
+        (let [kind (-> db
+                       ::db/current-position
+                       ::db/locations
+                       (get loc)
+                       ::db/kind)
               [i j] loc]
-          (case kind
-            ::db/pawn [[i (inc j)] [i (+ j 2)]]        ;; <----
-            nil))))
+          (->> (case kind
+                 ::db/pawn   (pawn-targets this db loc)
+                 ::db/knight (knight-targets this db loc)
+                 nil)))))
+               
 
     (game-result [this db]
 
