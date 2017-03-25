@@ -70,7 +70,7 @@
 (s/def ::current-position (s/keys :req [::locations]))
 
 ;; The position of all pieces after a particular move has been played.
-(def position? (s/keys ::req [::move-number ::color ::locations]))
+(def position? (s/keys :req [::move-number ::color ::locations]))
 
 ;; Every position in the game from newest to oldest.
 (s/def ::positions (s/every position? :kind vector?))
@@ -93,17 +93,18 @@
 (s/def ::start-stamp pos-int?)
 
 ;; A partially completed move.
-(def partial-move? (s/keys ::req [::move-number ::color ::start-stamp]
-                           ::opt [::kind ::end-stamp
-                                  ::start-location ::end-location]))
+(def partial-move? (s/keys :req [::move-number ::color ::start-stamp]
+                           :opt [::kind ::end-stamp
+                                 ::start-location ::end-location]))
 
 ;; The move which is currently in progress.
 (s/def ::current-move partial-move?)
   
 ;; A completed move.
-(def move? (s/keys ::req [::move-number ::color ::kind 
+(def move? (s/keys :req [::move-number ::color ::kind 
                           ::start-location ::end-location
-                          ::start-stamp ::end-stamp]))
+                          ::start-stamp ::end-stamp]
+                   :opt [::took]))
 
 ;; All previously completed moves. 
 (s/def ::moves (s/every move? :kind vector?))
@@ -133,7 +134,7 @@
 (def database? (s/keys :req [::look ::board ::rules
                              ::current-move ::moves
                              ::current-position ::positions]
-                       ::opt [::feedback]))
+                       :opt [::feedback]))
 
 
 ;;------------------------------------------------------------------------------
