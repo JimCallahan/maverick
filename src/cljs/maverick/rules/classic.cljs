@@ -91,10 +91,11 @@
                        (get loc)
                        ::db/kind)
               [i j] loc]
-          (->> (case kind
-                 ::db/pawn   (pawn-targets this db loc)
-                 ::db/knight (knight-targets this db loc)
-                 nil)))))
+          (-> (case kind
+                ::db/pawn   (pawn-targets this db loc)
+                ::db/knight (knight-targets this db loc)
+                nil)
+              (set)))))
                
 
     (game-result [this db]
