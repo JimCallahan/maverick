@@ -43,8 +43,18 @@
     (when loc
       (into (geom/loc-group :move loc)
             bracket))))
-    
+
 (defn hovers []
   [:g
    [hover]
    [move-start]])
+
+(defn targets []
+  (->> (listen [::subs/target-locations])
+       (map (fn [loc] 
+              (conj (geom/loc-group :move loc)
+                    [:circle {:cx 180.0 :cy 180.0 :r 50}])))
+       (into [:g])))
+
+       
+

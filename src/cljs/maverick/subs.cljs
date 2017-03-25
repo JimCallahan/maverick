@@ -54,3 +54,10 @@
  (fn [[sloc hloc] _]
    (when (not= hloc sloc)
      hloc)))
+
+(rf/reg-sub
+ ::target-locations
+ (fn [db _]
+   (let [loc (-> db ::db/current-move ::db/start-location)]
+     (maverick.classic/destinations db loc)))) ;; make this generic!
+ 

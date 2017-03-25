@@ -18,8 +18,9 @@
 
   ;; placeholder
   
-  [[i (inc j)]
-   [i (+ j 2)]])
+  (when (can-move? db [i j]) 
+    [[i (inc j)]
+     [i (+ j 2)]]))
 
 
 

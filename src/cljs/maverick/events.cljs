@@ -1,7 +1,6 @@
 (ns maverick.events
   (:require [re-frame.core :as rf]
-            [maverick.db :as db]
-            [maverick.classic :as classic]))
+            [maverick.db :as db]))
 
 (defn- reg-event-db
   ([id handler-fn] 
@@ -73,7 +72,7 @@
                (update-in [::db/moves] conj move)
                (assoc ::db/current-move next))))
        ;; Start a move.
-       (if (classic/can-move? db loc)
+       (if (maverick.classic/can-move? db loc) ;; make this generic!
          (let [kind (-> db
                         ::db/current-position
                         ::db/locations

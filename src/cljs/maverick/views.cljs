@@ -32,7 +32,8 @@
        :height size}
       [board/squares]
       [board/hovers]
-      [pieces]]]))
+      [pieces]
+      [board/targets]]]))
 
 (defn main-panel []
   [rc/v-box 
