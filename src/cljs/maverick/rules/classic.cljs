@@ -17,14 +17,22 @@
   nil
   )
 
+
+
+(defn- knight-control
+  "Locations that the knight controls."
+  [rules db loc]
+  (->> [[1 2] [1 -2] [-1 2] [-1 -2]
+        [2 1] [-2 1] [2 -1] [-2 -1]]
+       (map (partial add loc))
+       (filter (partial proto/in-bounds? rules db))))
+
 (defn- knight-targets
+  "Locations that the knight may move to or attack."
   [rules db loc]
   (let [color (-> db ::db/current-move ::db/color)
         plocs (-> db ::db/current-position ::db/locations)]
-    (->> [[1 2] [1 -2] [-1 2] [-1 -2]
-          [2 1] [-2 1] [2 -1] [-2 -1]]
-         (map (partial add loc))
-         (filter (partial proto/in-bounds? rules db))
+    (->> (knight-control rules db loc)
          (filter #(not= (::db/color (get plocs %)) color)))))
 
 
