@@ -1,8 +1,8 @@
 (ns maverick.views
     (:require [re-frame.core :as rf]
               [re-com.core :as rc]
-              [maverick.subs :as subs :refer [listen]]
               [maverick.db :as db]
+              [maverick.subs :as subs :refer [listen]]
               [maverick.board :as board]
               [maverick.pieces :as pieces]))
 
@@ -22,11 +22,6 @@
           (for [[loc {:keys [::db/color ::db/kind]}] ps]
             [pieces/piece color kind loc]))))
 
-(defn hovers []
-  [:g
-   [pieces/hover]
-   [pieces/move-start]])
-
 (defn board []
   (let [{:keys [::db/rows ::db/cols]} (listen [::subs/board-layout])
         size (listen [::subs/board-size])]
@@ -36,7 +31,7 @@
        :width size
        :height size}
       [board/squares]
-      [hovers]
+      [board/hovers]
       [pieces]]]))
 
 (defn main-panel []

@@ -1,18 +1,9 @@
 (ns maverick.pieces
-  (:require [reagent.format :as fmt]
-            [re-frame.core :as rf]
-            [maverick.subs :as subs :refer [listen]]
+  (:require [re-frame.core :as rf]
             [maverick.db :as db]
-            [maverick.board :as board]
-            [maverick.events :as events]))
-
-(defn- path
-  "An SVG `path`."
-  ([class specs]
-   (let [clz (when class {:class class})]
-     [:path (merge clz {:d (apply str specs)})]))
-  ([specs]
-   (path nil specs)))
+            [maverick.events :as events]
+            [maverick.subs :as subs :refer [listen]]
+            [maverick.geom :as geom :refer [path]]))
 
 (defn pawn-elems [_]
   [[:rect {:x 72
@@ -317,34 +308,7 @@
    ::db/queen    queen-elems
    ::db/king     king-elems})
 
-(defn loc-group
-  [class [i j]]
-  (let [{:keys [::db/rows ::db/orient]} (listen [::subs/board-layout])
-        nj (board/screen-j j rows orient)
-        ss (->> (/ 1.0 360.0) (fmt/format "%.4f"))]
-    [:g {:class (name class)
-         :transform (str "translate(" i "," nj ") scale(" ss ")")}]))
-
 (defn piece [color kind loc]
   (let [cs (name color)]
-    (into (loc-group color loc)
+    (into (geom/loc-group color loc)
           ((kind piece-fns) cs))))
-
-(def bracket
-  [(path ["M9,90V21A12,12,0,0,1,21,9H90"])
-   (path ["M90,351H21A12,12,0,0,1,9,339V270"])
-   (path ["M351,270v69a12,12,0,0,1-12,12H270"])
-   (path ["M270,9h69a12,12,0,0,1,12,12V90"])])
-
-(defn hover []
-  (let [loc (listen [::subs/hover-loc])]
-    (when loc
-      (into (loc-group :hover loc)
-            bracket))))
-    
-(defn move-start []
-  (let [loc (listen [::subs/start-location])]
-    (when loc
-      (into (loc-group :move loc)
-            bracket))))
-    
