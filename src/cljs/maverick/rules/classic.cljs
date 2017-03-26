@@ -11,32 +11,36 @@
   [[ai aj] [bi bj]]
   [(+ ai bi) (+ aj bj)])
 
-
-
 ;;
-;; Pawn
+;; Piece Threats.
 ;;
 
-(defn- pawn-control
-  "Locations that the pawn controls."
+(defn- pawn-threats
   [rules db loc]
-
-
-  nil
-  )
-
-
-(defn- pawn-targets
-  [rules db loc]
-
-
-  nil
-  )
-
-
-;;
-;; Knight
-;;
+  (let [plocs (-> db ::db/current-position ::db/locations)
+        attack-color (-> db ::db/current-move ::db/color) 
+        [start-j step] (case attack-color
+                         ::db/white [1 [0 1]]
+                         ::db/black [6 [0 -1]])
+        sloc (add loc step)
+        dloc (add sloc step)
+        rloc (add sloc [1 0])
+        lloc (add sloc [-1 0])
+        [single double right left]
+        (->> [sloc dloc lloc rloc]
+             (map (fn [lc] [lc (-> (get plocs lc)
+                                  (assoc ::db/depth 0))])))
+        takes (->> [right left]
+                   (filter (fn [[_ {:keys [::db/color]}]]
+                             (and color (not= color attack-color))))
+                   (map (fn [[lc p]] [lc (assoc p ::db/depth 0)]))
+                   (into {}))
+        moves (when-not (-> single second ::db/kind)
+                (if (or (-> double second ::db/kind)
+                        (not= start-j (second loc)))
+                  (into {} [single])
+                  (into {} [single double])))]
+    (merge moves takes)))
 
 (defn- knight-threats
   [rules db loc]
@@ -101,6 +105,7 @@
             attack-color (-> db ::db/current-move ::db/color)]
         (when (= attack-color color)
           (case kind
+            ::db/pawn (pawn-threats this db loc)
             ::db/knight (knight-threats this db loc)
             nil))))
 
