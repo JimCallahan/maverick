@@ -1,8 +1,19 @@
 # maverick
 
-A [re-frame](https://github.com/Day8/re-frame) application designed to ... well, that part is up to you.
+A chess board which allows variant rules of chess. 
 
 ## Development Mode
+
+### Setup Browser 
+
+Enable custom formatters for CLJS DevTools:
+
+https://github.com/binaryage/cljs-devtools/blob/master/docs/installation.md
+
+Install React DevTools plugin:
+
+https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi
+
 
 ### Start Cider from Emacs:
 
