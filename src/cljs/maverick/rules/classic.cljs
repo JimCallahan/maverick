@@ -16,7 +16,7 @@
 ;;
 
 (defn- pawn-threats
-  [rules db loc]
+  [db loc]
   (let [plocs (-> db ::db/current-position ::db/locations)
         attack-color (-> db ::db/current-move ::db/color) 
         [start-j step] (case attack-color
@@ -76,6 +76,46 @@
          (into {}))))
 
 
+(defn- slider
+  [rules db loc delta]
+  (let [plocs (-> db ::db/current-position ::db/locations)
+        attack-color (-> db ::db/current-move ::db/color)]
+    (loop [ts []
+           lc (add loc delta)
+           dp 0]
+      (if-not (proto/in-bounds? rules db lc)
+        (into {} ts)
+        (let [{:keys [::db/color] :as p} (assoc (get plocs lc) ::db/depth dp)
+              ndp (if color
+                    (when (not= color attack-color)
+                      (inc dp))
+                    dp)]
+          (if-not ndp
+            (into {} ts)
+            (recur (conj ts [lc p])
+                   (add lc delta)
+                   ndp)))))))
+
+(defn- bishop-threats
+  [rules db loc]
+  (merge (slider rules db loc [1 1])
+         (slider rules db loc [-1 1])
+         (slider rules db loc [-1 -1])
+         (slider rules db loc [1 -1])))
+
+(defn- rook-threats
+  [rules db loc]
+  (merge (slider rules db loc [1 0])
+         (slider rules db loc [-1 0])
+         (slider rules db loc [0 1])
+         (slider rules db loc [0 -1])))
+
+(defn- queen-threats
+  [rules db loc]
+  (merge (bishop-threats rules db loc)
+         (rook-threats rules db loc)))
+
+
 ;;------------------------------------------------------------------------------
 ;; Rules Protocol Implementation.
 ;;------------------------------------------------------------------------------
@@ -127,8 +167,11 @@
             attack-color (-> db ::db/current-move ::db/color)]
         (when (= attack-color color)
           (case kind
-            ::db/pawn (pawn-threats this db loc)
+            ::db/pawn (pawn-threats db loc)
             ::db/knight (knight-threats this db loc)
+            ::db/bishop (bishop-threats this db loc)
+            ::db/rook (rook-threats this db loc)
+            ::db/queen (queen-threats this db loc)
             nil))))
 
     (game-result [this db]
