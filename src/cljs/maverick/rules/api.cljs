@@ -2,32 +2,67 @@
   (:require [maverick.db :as db]
             [maverick.rules.protocol :as proto]))
 
+(defn filter-targets
+  "Filter the legal target moves from the threats."
+  [threats attack-color]
+  (->> threats 
+       (filter (fn [[_ {:keys [::db/color ::db/depth]}]]
+                 (and (not= color attack-color)
+                      (= depth 0))))
+       (into {})))
+
+
 ;;------------------------------------------------------------------------------
 ;; Rules API. 
 ;;------------------------------------------------------------------------------
 
 (defn init-db
-  "Generate the initial value of the database." 
+  "Generate the initial value of the database.
+   - The rules of the game."
   [rules]
   (proto/init-db rules)) 
 
 (defn in-bounds?
-  "Whether the location is within the bounds of the board."
+  "Whether the location is within the bounds of the board.
+   - The rules of the game.
+   - The application database.
+   - The location in question."
   [rules db loc]
   (proto/in-bounds? rules db loc))
 
-(defn can-move?
-  "Whether there exist a piece at the location which can be moved this turn."
+(defn threats
+  "The information about the squares on the board threatened by a piece this move.
+   - The rules of the game.
+   - The application database.
+   - The location of the piece being moved.
+
+   Returns a map indexed by location of the square being threatened which 
+   contains:
+   - `:kind` The kind of piece occupying the square, if any.
+   - `:color` The color of the piece occupying the square, if any.
+   - `:depth` The number of pieces blocking the attack on the square."
   [rules db loc]
-  (proto/can-move? rules db loc))
+  (proto/threats rules db loc))
 
 (defn targets
-  "The possible target locations when moving the piece at the location."
+  "The set of locations for squares where the piece can be legally moved.
+   - The rules of the game.
+   - The application database.
+   - The location of the piece being moved."
   [rules db loc]
-  (proto/targets rules db loc))
+  (let [color (-> db ::db/current-move ::db/color)]
+    (-> (proto/threats rules db loc)
+        (filter-targets color)
+        (keys)
+        (set))))
                                        
 (defn game-result
-  "The result of the game, if completed."
+  "The result of the game, if completed.
+   - The rules of the game.
+   - The application database.
+   
+   Returns `:white-wins`, `:black-wins`, `:draw` or `nil` if the game 
+   continues."
   [rules db]
   (proto/game-result rules db))
 

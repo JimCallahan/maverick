@@ -7,8 +7,24 @@
 ;;------------------------------------------------------------------------------
 
 (defn- add
+  "2D vector addition."
   [[ai aj] [bi bj]]
   [(+ ai bi) (+ aj bj)])
+
+
+
+;;
+;; Pawn
+;;
+
+(defn- pawn-control
+  "Locations that the pawn controls."
+  [rules db loc]
+
+
+  nil
+  )
+
 
 (defn- pawn-targets
   [rules db loc]
@@ -18,23 +34,20 @@
   )
 
 
+;;
+;; Knight
+;;
 
-(defn- knight-control
-  "Locations that the knight controls."
+(defn- knight-threats
   [rules db loc]
-  (->> [[1 2] [1 -2] [-1 2] [-1 -2]
-        [2 1] [-2 1] [2 -1] [-2 -1]]
-       (map (partial add loc))
-       (filter (partial proto/in-bounds? rules db))))
-
-(defn- knight-targets
-  "Locations that the knight may move to or attack."
-  [rules db loc]
-  (let [color (-> db ::db/current-move ::db/color)
-        plocs (-> db ::db/current-position ::db/locations)]
-    (->> (knight-control rules db loc)
-         (filter #(not= (::db/color (get plocs %)) color)))))
-
+  (let [plocs (-> db ::db/current-position ::db/locations)]
+    (->> [[1 2] [1 -2] [-1 2] [-1 -2]
+          [2 1] [-2 1] [2 -1] [-2 -1]]
+         (map (partial add loc))
+         (filter (partial proto/in-bounds? rules db))
+         (map (fn [lc]
+                [lc (assoc (get plocs lc) ::db/depth 0)]))
+         (into {}))))
 
 
 ;;------------------------------------------------------------------------------
@@ -82,29 +95,14 @@
              (and (<= 0 i) (< i cols))
              (and (<= 0 j) (< j rows)))))
 
-    (can-move? [_ db loc]
-      (let [color (-> db ::db/current-move ::db/color)
-            plocs (-> db ::db/current-position ::db/locations)
-            piece (get plocs loc)]
-
-        ;; placeholder
-        
-        (= color (::db/color piece))))
-
-    (targets [this db loc]
-      (when (proto/can-move? this db loc)
-        (let [kind (-> db
-                       ::db/current-position
-                       ::db/locations
-                       (get loc)
-                       ::db/kind)
-              [i j] loc]
-          (-> (case kind
-                ::db/pawn   (pawn-targets this db loc)
-                ::db/knight (knight-targets this db loc)
-                nil)
-              (set)))))
-               
+    (threats [this db loc]
+      (let [{:keys [::db/kind ::db/color]}
+            (-> db ::db/current-position ::db/locations (get loc))
+            attack-color (-> db ::db/current-move ::db/color)]
+        (when (= attack-color color)
+          (case kind
+            ::db/knight (knight-threats this db loc)
+            nil))))
 
     (game-result [this db]
 

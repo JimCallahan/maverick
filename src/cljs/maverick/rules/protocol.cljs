@@ -4,7 +4,6 @@
   ""
   (init-db [this])
   (in-bounds? [this db loc])
-  (can-move? [this db loc])
-  (targets [this db loc])
+  (threats [this db loc])
   (game-result [this db]))
 

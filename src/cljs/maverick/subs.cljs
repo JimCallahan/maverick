@@ -3,8 +3,8 @@
     (:require [re-frame.core :as rf]
               [maverick.db :as db]
               [maverick.rules.api :as rules]
-              [maverick.rules.classic] 
-              [maverick.rules.core :refer [cur-rules]]))
+              [maverick.rules.core :refer [cur-rules]]
+              [maverick.rules.classic]))
 
 (defn listen
   [query-v]
@@ -60,7 +60,8 @@
 
 (rf/reg-sub
  ::target-locations
- (fn [db _]
-   (let [loc (-> db ::db/current-move ::db/start-location)]
-     (rules/targets (cur-rules db) db loc))))
- 
+ (fn [db _] 
+   (let [loc (-> db ::db/current-move ::db/start-location)
+         color (-> db ::db/current-move ::db/color)]
+     (->> (rules/targets (cur-rules db) db loc)
+          (into []))))) 

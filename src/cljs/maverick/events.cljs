@@ -4,6 +4,11 @@
             [maverick.rules.api :as rules]
             [maverick.rules.core :refer [rules-for cur-rules]]))
 
+
+;;------------------------------------------------------------------------------
+;; Helpers. 
+;;------------------------------------------------------------------------------
+
 (defn- reg-event-db
   ([id handler-fn] 
    (reg-event-db id nil handler-fn))
@@ -42,51 +47,55 @@
  (fn [db [_ loc]]
    (let [{:keys [::db/move-number ::db/color ::db/start-location ::db/start-stamp]
           :as pmove} (::db/current-move db)
-         targets (rules/targets (cur-rules db) db start-location)
          now (.now js/Date)]
+     
      (if start-location
-       (if-not (and targets (targets loc))
+       (let [targets (rules/targets (cur-rules db) db start-location)]
+             ;;threats (rules/threats (cur-rules db) db start-location)
+             ;;targets (rules/filter-targets threats color)]
+         (if-not (get targets loc)
          
-         ;; Cancel the move.
-         (update-in db [::db/current-move] dissoc ::db/start-location)
-
-         ;; Make a move.
-         (let [plocs (-> db ::db/current-position ::db/locations)
-               took (when-let [p (get plocs loc)]
-                      {::db/took p})
-               move (-> (assoc pmove
-                               ::db/end-location loc
-                               ::db/end-stamp now)
-                        (merge took))
-               next-move (-> (case color
-                               ::db/white {::db/move-number move-number
-                                           ::db/color ::db/black}
-                               ::db/black {::db/move-number (inc move-number)
-                                           ::db/color ::db/white})
-                             (assoc ::db/start-stamp now))
-               piece (get plocs start-location)
-               end-locations {::db/locations (-> plocs
-                                                 (dissoc start-location)
-                                                 (assoc loc piece))}
-               position (-> (select-keys pmove [::db/move-number ::db/color])
-                            (merge end-locations))]
-           (-> db
-               (update-in [::db/moves] conj move)
-               (assoc ::db/current-move next-move)
-               (update-in [::db/positions] conj position)
-               (assoc ::db/current-position end-locations))))
-
+           ;; Cancel the move.
+           (update-in db [::db/current-move] dissoc ::db/start-location)
+           
+           ;; Make a move.
+           (let [plocs (-> db ::db/current-position ::db/locations)
+                 took (when-let [p (get plocs loc)]
+                        {::db/took p})
+                 move (-> (assoc pmove
+                                 ::db/end-location loc
+                                 ::db/end-stamp now)
+                          (merge took))
+                 next-move (-> (case color
+                                 ::db/white {::db/move-number move-number
+                                             ::db/color ::db/black}
+                                 ::db/black {::db/move-number (inc move-number)
+                                             ::db/color ::db/white})
+                               (assoc ::db/start-stamp now))
+                 piece (get plocs start-location)
+                 end-locations {::db/locations (-> plocs
+                                                   (dissoc start-location)
+                                                   (assoc loc piece))}
+                 position (-> (select-keys pmove [::db/move-number ::db/color])
+                              (merge end-locations))]
+             (-> db
+                 (update-in [::db/moves] conj move)
+                 (assoc ::db/current-move next-move)
+                 (update-in [::db/positions] conj position)
+                 (assoc ::db/current-position end-locations)))))
+         
        ;; Start a move.
-       (if (rules/can-move? (cur-rules db) db loc)
-         (let [kind (-> db
-                        ::db/current-position
-                        ::db/locations
-                        (get loc)
-                        ::db/kind)]
-           (->> (assoc pmove
-                       ::db/start-location loc
-                       ::db/kind kind)
-                (assoc db ::db/current-move)))
-         db)))))
+       (let [targets (rules/targets (cur-rules db) db loc)]
+         (if (seq targets)
+           (let [kind (-> db
+                          ::db/current-position
+                          ::db/locations
+                          (get loc)
+                          ::db/kind)]
+             (->> (assoc pmove
+                         ::db/start-location loc
+                         ::db/kind kind)
+                  (assoc db ::db/current-move)))
+           db))))))
        
        
