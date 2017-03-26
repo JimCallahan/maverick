@@ -51,8 +51,6 @@
      
      (if start-location
        (let [targets (rules/targets (cur-rules db) db start-location)]
-             ;;threats (rules/threats (cur-rules db) db start-location)
-             ;;targets (rules/filter-targets threats color)]
          (if-not (get targets loc)
          
            ;; Cancel the move.
