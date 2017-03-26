@@ -22,25 +22,47 @@
         [start-j step] (case attack-color
                          ::db/white [1 [0 1]]
                          ::db/black [6 [0 -1]])
-        sloc (add loc step)
-        dloc (add sloc step)
-        rloc (add sloc [1 0])
-        lloc (add sloc [-1 0])
-        [single double right left]
-        (->> [sloc dloc lloc rloc]
-             (map (fn [lc] [lc (-> (get plocs lc)
-                                  (assoc ::db/depth 0))])))
+        [single double right left eright eleft]
+        (let [s (add loc step)
+              d (add s step)
+              r (add s [1 0])
+              l (add s [-1 0])]        
+          (->> [s d r l]
+               (map (fn [lc] [lc (-> (get plocs lc)
+                                    (assoc ::db/depth 0))]))))
+        
+        moves (when-not (-> single second ::db/kind)
+                (if (or (-> double second ::db/kind)
+                        (not= start-j (second loc)))
+                  (into {} [single])
+                  (into {} [single double])))
+        
         takes (->> [right left]
                    (filter (fn [[_ {:keys [::db/color]}]]
                              (and color (not= color attack-color))))
                    (map (fn [[lc p]] [lc (assoc p ::db/depth 0)]))
                    (into {}))
-        moves (when-not (-> single second ::db/kind)
-                (if (or (-> double second ::db/kind)
-                        (not= start-j (second loc)))
-                  (into {} [single])
-                  (into {} [single double])))]
-    (merge moves takes)))
+        
+        en-passant
+        (let [{:keys [::db/kind ::db/start-location ::db/end-location ]
+               :as last-move}
+              (-> db ::db/moves last)
+              ep-js (case attack-color
+                      ::db/white [6 4]
+                      ::db/black [1 3])
+              [_ sj] start-location
+              [_ ej] end-location]
+          (some->> [(add loc [-1 0]) (add loc [1 0])]
+                   (filter #(and (= kind ::db/pawn)
+                                 (= end-location %)
+                                 (= [sj ej] ep-js)))
+                   (first)
+                   ((fn [lc]
+                      {(add lc step) 
+                       (-> (select-keys last-move [::db/kind ::db/color])
+                           (assoc ::db/depth 0
+                                  ::db/took-location end-location))}))))]
+    (merge moves takes en-passant)))
 
 (defn- knight-threats
   [rules db loc]

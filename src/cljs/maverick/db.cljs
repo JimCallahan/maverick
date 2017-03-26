@@ -99,7 +99,16 @@
 
 ;; The move which is currently in progress.
 (s/def ::current-move partial-move?)
-  
+
+;; The location of the piece that was taken as a result of a move.
+;;   Note that this can be different than ::end-location for some non-standard
+;;   moves rules like en passant.
+(s/def ::took-location location?) 
+
+;; The piece taken as a result of a move.
+(s/def ::took (s/keys :req [::color ::kind]
+                      :opt [::took-location]))
+
 ;; A completed move.
 (def move? (s/keys :req [::move-number ::color ::kind 
                           ::start-location ::end-location

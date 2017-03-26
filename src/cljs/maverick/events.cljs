@@ -45,13 +45,18 @@
 (reg-event-db
  ::square-click
  (fn [db [_ loc]]
-   (let [{:keys [::db/move-number ::db/color ::db/start-location ::db/start-stamp]
-          :as pmove} (::db/current-move db)
+   (let [{:keys [::db/move-number ::db/color
+                 ::db/start-location ::db/start-stamp]
+          :as pmove}
+         (::db/current-move db)
          now (.now js/Date)]
      
      (if start-location
-       (let [targets (rules/targets (cur-rules db) db start-location)]
-         (if-not (get targets loc)
+       (let [attack-color (-> db ::db/current-move ::db/color)
+             threats (rules/threats (cur-rules db) db start-location)
+             target (get threats loc)]
+
+         (if-not target
          
            ;; Cancel the move.
            (update-in db [::db/current-move] dissoc ::db/start-location)
@@ -71,9 +76,11 @@
                                              ::db/color ::db/white})
                                (assoc ::db/start-stamp now))
                  piece (get plocs start-location)
-                 end-locations {::db/locations (-> plocs
-                                                   (dissoc start-location)
-                                                   (assoc loc piece))}
+                 end-locations {::db/locations
+                                (-> plocs
+                                    (dissoc start-location)
+                                    (dissoc (::db/took-location target))
+                                    (assoc loc piece))}
                  position (-> (select-keys pmove [::db/move-number ::db/color])
                               (merge end-locations))]
              (-> db

@@ -31,16 +31,20 @@
   (proto/in-bounds? rules db loc))
 
 (defn threats
-  "The information about the squares on the board threatened by a piece this move.
+  "The information about the squares on the board threatened by a piece this 
+   move.
    - The rules of the game.
    - The application database.
    - The location of the piece being moved.
 
    Returns a map indexed by location of the square being threatened which 
    contains:
-   - `:kind` The kind of piece occupying the square, if any.
-   - `:color` The color of the piece occupying the square, if any.
-   - `:depth` The number of pieces blocking the attack on the square."
+   - `:depth` The number of pieces blocking the attack on the square.
+   - `:kind` The kind of piece occupying the square (optional).
+   - `:color` The color of the piece occupying the square (optional).
+   - `:took-location` The location of the piece that was taken as a result of 
+   a move. This is only needed for moves like en passant which have
+   a different location than the square being threatened."
   [rules db loc]
   (proto/threats rules db loc))
 
