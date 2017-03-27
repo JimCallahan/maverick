@@ -27,11 +27,11 @@ Chess Rules:
 * Threefold repitition. 
 * Fifty move rule.
 * Draw rules: 
-** King vs. King
-** King and Bishop vs. King
-** King and Knight vs. King
-** King and Bishop vs. King and Bishop (of same color).
-** Mutual agreement.
+  * King vs. King
+  * King and Bishop vs. King
+  * King and Knight vs. King
+  * King and Bishop vs. King and Bishop (of same color).
+  * Mutual agreement.
 * Seriwan variant.
 
 Architecture: 
