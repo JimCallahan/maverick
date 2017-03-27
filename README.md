@@ -15,7 +15,7 @@ Install React DevTools plugin:
 https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi
 
 
-### Start Cider from Emacs:
+### Start Cider from Emacs
 
 Put this in your Emacs config file:
 
@@ -25,9 +25,9 @@ Put this in your Emacs config file:
 
 Navigate to a clojurescript file and start a figwheel REPL with `cider-jack-in-clojurescript` or (`C-c M-J`)
 
-### Compile css:
+### Compile CSS
 
-Compile css file once.
+Compile CSS file once.
 
 ```
 lein garden once
@@ -39,7 +39,7 @@ Automatically recompile css file on change.
 lein garden auto
 ```
 
-### Run application:
+### Run Application
 
 ```
 lein clean
@@ -50,12 +50,27 @@ Figwheel will automatically push cljs changes to the browser.
 
 Wait a bit, then browse to [http://localhost:3449](http://localhost:3449).
 
+
 ## Production Build
 
-
-To compile clojurescript to javascript:
+To compile all Clojurescript to Javascript:
 
 ```
 lein clean
 lein cljsbuild once min
+```
+
+Build an Uberjar with everything (HTML, CSS, Clojurescript, Clojure):
+
+```
+lein clean
+lein garden once
+lein ring uberjar
+```
+
+Run the application from the Uberjar:
+
+```
+cd target
+java -jar maverick-0.1.0-SNAPSHOT-standalone.jar 
 ```
