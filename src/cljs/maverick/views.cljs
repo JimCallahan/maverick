@@ -33,7 +33,8 @@
       [board/squares]
       [board/hovers]
       [pieces]
-      [board/targets]]]))
+      [board/targets]
+      [board/xrays]]]))
 
 (defn main-panel []
   [rc/v-box 

@@ -65,3 +65,11 @@
          color (-> db ::db/current-move ::db/color)]
      (->> (rules/targets (cur-rules db) db loc)
           (into []))))) 
+
+(rf/reg-sub
+ ::xray-locations
+ (fn [db _] 
+   (let [loc (-> db ::db/current-move ::db/start-location)
+         color (-> db ::db/current-move ::db/color)]
+     (->> (rules/xrays (cur-rules db) db loc)
+          (into []))))) 

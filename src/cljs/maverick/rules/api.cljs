@@ -2,14 +2,16 @@
   (:require [maverick.db :as db]
             [maverick.rules.protocol :as proto]))
 
-(defn filter-targets
-  "Filter the legal target moves from the threats."
-  [threats attack-color]
+(defn- filter-attacks
+  "Filter the attacking moves from the threats."
+  [threats attack-color selected-depth]
   (->> threats 
        (filter (fn [[_ {:keys [::db/color ::db/depth]}]]
                  (and (not= color attack-color)
-                      (= depth 0))))
-       (into {})))
+                      (= depth selected-depth))))
+       (into {})
+       (keys)
+       (set)))
 
 
 ;;------------------------------------------------------------------------------
@@ -56,9 +58,18 @@
   [rules db loc]
   (let [color (-> db ::db/current-move ::db/color)]
     (-> (proto/threats rules db loc)
-        (filter-targets color)
-        (keys)
-        (set))))
+        (filter-attacks color 0))))
+
+(defn xrays
+   "The set of locations for squares which would be targeted except for a 
+   single blocking enemy piece. 
+   - The rules of the game.
+   - The application database.
+   - The location of the piece being moved."
+  [rules db loc]
+  (let [color (-> db ::db/current-move ::db/color)]
+    (-> (proto/threats rules db loc)
+        (filter-attacks color 1))))
                                        
 (defn game-result
   "The result of the game, if completed.

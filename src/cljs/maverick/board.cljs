@@ -56,5 +56,12 @@
                     [:circle {:cx 180.0 :cy 180.0 :r 50}])))
        (into [:g])))
 
+(defn xrays []
+  (->> (listen [::subs/xray-locations])
+       (map (fn [loc] 
+              (conj (geom/loc-group :xray loc)
+                    [:circle {:cx 180.0 :cy 180.0 :r 20}])))
+       (into [:g])))
+
        
 

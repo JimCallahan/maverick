@@ -27,4 +27,5 @@
   [:.white-detail (assoc detail :fill "#000000")]
   [:.black-detail (assoc detail :fill "#ffffff")]
   [:.hover (assoc bracket :stroke "#ffff00")]
-  [:.move (assoc bracket :stroke "#00ff00")])
+  [:.move (assoc bracket :stroke "#00ff00")]
+  [:.xray (assoc bracket :fill "#00ff00")])
