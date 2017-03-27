@@ -32,7 +32,7 @@ Chess Rules:
   * King and Knight vs. King
   * King and Bishop vs. King and Bishop (of same color).
   * Mutual agreement.
-* Seriwan variant.
+* [Seiriwan variant](https://en.wikipedia.org/wiki/Seirawan_chess).
 
 Architecture: 
 * Multiplayer with matchmaking.
