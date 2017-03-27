@@ -1,4 +1,4 @@
-# maverick
+# Maverick
 
 A chess board which allows variant rules of chess. 
 
@@ -32,7 +32,11 @@ Chess Rules:
   * King and Knight vs. King
   * King and Bishop vs. King and Bishop (of same color).
   * Mutual agreement.
-* [Seiriwan variant](https://en.wikipedia.org/wiki/Seirawan_chess).
+
+* Alternative rules:
+  * [960](https://en.wikipedia.org/wiki/Chess960).
+  * [Seiriwan](https://en.wikipedia.org/wiki/Seirawan_chess).
+  * [Bughouse](https://en.wikipedia.org/wiki/Bughouse_chess).
 
 Architecture: 
 * Multiplayer with matchmaking.
