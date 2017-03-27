@@ -2,6 +2,49 @@
 
 A chess board which allows variant rules of chess. 
 
+## Status
+
+Very early days...
+
+At the moment, only displays a basic board which enforces classical chess rules where both sides must
+play on same browser.
+
+### TODO
+
+Visualization:
+* Board a-h/1-8 labeling.
+* Previous move arrow graphics.
+* Move history in PGN.
+* Time navigation VCR buttons.
+* Per-square threat count indicators.
+
+Chess Rules: 
+* King basic movement and captures.
+* Castling.
+* Enforce pinning pieces and prevent moving into check.
+* Checkmate.
+* Stalemate. 
+* Threefold repitition. 
+* Fifty move rule.
+* Draw rules: 
+** King vs. King
+** King and Bishop vs. King
+** King and Knight vs. King
+** King and Bishop vs. King and Bishop (of same color).
+** Mutual agreement.
+* Seriwan variant.
+
+Architecture: 
+* Multiplayer with matchmaking.
+* Permanently saved games.
+* Elo ratings.
+* Running on AWS: K8s?
+* Distributed backend: Kafka?
+* OAuth: Google, Facebook, etc.
+
+And lots more probably...
+
+
 ## Development Mode
 
 ### Setup Browser 
