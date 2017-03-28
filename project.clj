@@ -26,15 +26,18 @@
   
   :source-paths ["src/clj"]
 
-  :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
+  :clean-targets
+  ^{:protect false} ["resources/public/js/compiled" "target"]
 
-  :figwheel {:css-dirs ["resources/public/css"]}
+  :figwheel
+  {:css-dirs ["resources/public/css"]}
 
-  :garden {:builds [{:id "screen"
-                     :source-paths ["src/clj"]
-                     :stylesheet maverick.css/screen
-                     :compiler {:output-to "resources/public/css/screen.css"
-                                :pretty-print? true}}]}
+  :garden
+  {:builds [{:id "screen"
+             :source-paths ["src/clj"]
+             :stylesheet maverick.css/screen
+             :compiler {:output-to "resources/public/css/screen.css"
+                        :pretty-print? true}}]}
 
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
