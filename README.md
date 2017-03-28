@@ -89,8 +89,7 @@ lein garden auto
 ### Run Application
 
 ```
-lein clean
-lein figwheel dev
+lein do clean, figwheel dev
 ```
 
 Figwheel will automatically push cljs changes to the browser.
@@ -106,6 +105,8 @@ To compile all Clojurescript to Javascript:
 lein do clean, cljsbuild once min
 ```
 
+### Uberjar
+
 Build an Uberjar with everything (HTML, CSS, Clojurescript, Clojure):
 
 ```
@@ -118,6 +119,8 @@ Run the application from the Uberjar:
 cd target
 java -jar maverick-standalone.jar 
 ```
+
+### Docker
 
 Build a Docker image:
 
@@ -132,3 +135,5 @@ Run the Docker image locally:
 cd docker
 make run 
 ```
+
+Browse to [http://localhost:8080](http://localhost:8080).
