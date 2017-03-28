@@ -103,21 +103,32 @@ Wait a bit, then browse to [http://localhost:3449](http://localhost:3449).
 To compile all Clojurescript to Javascript:
 
 ```
-lein clean
-lein cljsbuild once min
+lein do clean, cljsbuild once min
 ```
 
 Build an Uberjar with everything (HTML, CSS, Clojurescript, Clojure):
 
 ```
-lein clean
-lein garden once
-lein ring uberjar
+lein do clean, garden once, ring uberjar
 ```
 
 Run the application from the Uberjar:
 
 ```
 cd target
-java -jar maverick-0.1.0-SNAPSHOT-standalone.jar 
+java -jar maverick-standalone.jar 
+```
+
+Build a Docker image:
+
+```
+cd docker
+make container
+```
+
+Run the Docker image locally: 
+
+```
+cd docker
+make run 
 ```

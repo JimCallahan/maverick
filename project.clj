@@ -14,7 +14,13 @@
 
   :plugins [[lein-ring "0.11.0"]
             [lein-cljsbuild "1.1.4"]
-            [lein-garden "0.2.8"]]
+            [lein-garden "0.2.8"]
+            [lein-libdir "0.1.1"]]
+  
+  :jar-name "maverick.jar"
+  :uberjar-name "maverick-standalone.jar"
+  
+  :libdir-path "docker/jars"
 
   :hooks [leiningen.cljsbuild]
   
