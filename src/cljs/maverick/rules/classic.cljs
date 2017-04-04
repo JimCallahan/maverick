@@ -64,17 +64,21 @@
                                   ::db/took-location end-location))}))))]
     (merge moves takes en-passant)))
 
-(defn- knight-threats
-  [rules db loc]
+(defn- loc-threats
+  [rules db loc lcs]
   (let [plocs (-> db ::db/current-position ::db/locations)]
-    (->> [[1 2] [1 -2] [-1 2] [-1 -2]
-          [2 1] [-2 1] [2 -1] [-2 -1]]
+    (->> lcs 
          (map (partial add loc))
          (filter (partial proto/in-bounds? rules db))
          (map (fn [lc]
                 [lc (assoc (get plocs lc) ::db/depth 0)]))
          (into {}))))
 
+(defn- knight-threats
+  [rules db loc]
+  (loc-threats rules db loc
+               [[1 2] [1 -2] [-1 2] [-1 -2]
+                [2 1] [-2 1] [2 -1] [-2 -1]]))
 
 (defn- slider
   [rules db loc delta]
@@ -114,6 +118,13 @@
   [rules db loc]
   (merge (bishop-threats rules db loc)
          (rook-threats rules db loc)))
+
+(defn- king-threats
+  [rules db loc]
+  (loc-threats rules db loc
+               [[-1 -1] [-1 0] [-1 1]
+                [0 -1] [0 1]
+                [1 -1] [1 0] [1 1]]))
 
 
 ;;------------------------------------------------------------------------------
@@ -172,6 +183,7 @@
             ::db/bishop (bishop-threats this db loc)
             ::db/rook (rook-threats this db loc)
             ::db/queen (queen-threats this db loc)
+            ::db/king (king-threats this db loc)
             nil))))
 
     (game-result [this db]
