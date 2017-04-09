@@ -29,7 +29,7 @@
               l (add s [-1 0])]        
           (->> [s d r l]
                (map (fn [lc] [lc (-> (get plocs lc)
-                                    (assoc ::db/depth 0))]))))
+                                    (assoc ::db/direct true))]))))
         
         moves (when-not (-> single second ::db/kind)
                 (if (or (-> double second ::db/kind)
@@ -40,7 +40,7 @@
         takes (->> [right left]
                    (filter (fn [[_ {:keys [::db/color]}]]
                              (and color (not= color attack-color))))
-                   (map (fn [[lc p]] [lc (assoc p ::db/depth 0)]))
+                   (map (fn [[lc p]] [lc (assoc p ::db/direct true)]))
                    (into {}))
         
         en-passant
@@ -60,7 +60,7 @@
                    ((fn [lc]
                       {(add lc step) 
                        (-> (select-keys last-move [::db/kind ::db/color])
-                           (assoc ::db/depth 0
+                           (assoc ::db/direct true
                                   ::db/took-location end-location))}))))]
     (merge moves takes en-passant)))
 
@@ -71,7 +71,7 @@
          (map (partial add loc))
          (filter (partial proto/in-bounds? rules db))
          (map (fn [lc]
-                [lc (assoc (get plocs lc) ::db/depth 0)]))
+                [lc (assoc (get plocs lc) ::db/direct true)]))
          (into {}))))
 
 (defn- knight-threats
@@ -86,19 +86,18 @@
         attack-color (-> db ::db/current-move ::db/color)]
     (loop [ts []
            lc (add loc delta)
-           dp 0]
+           dr true]
       (if-not (proto/in-bounds? rules db lc)
         (into {} ts)
-        (let [{:keys [::db/color] :as p} (assoc (get plocs lc) ::db/depth dp)
-              ndp (if color
-                    (when (not= color attack-color)
-                      (inc dp))
-                    dp)]
-          (if-not ndp
+        (let [{:keys [::db/color] :as p} (assoc (get plocs lc) ::db/direct dr)
+              ndr (if (and color (not= color attack-color))
+                    false
+                    dr)]
+          (if-not ndr
             (into {} ts)
             (recur (conj ts [lc p])
                    (add lc delta)
-                   ndp)))))))
+                   ndr)))))))
 
 (defn- bishop-threats
   [rules db loc]

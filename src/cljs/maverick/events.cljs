@@ -56,8 +56,7 @@
              threats (rules/threats (cur-rules db) db start-location)
              target (get threats loc)]
 
-         (if (or (not target)
-                 (> (::db/depth target) 0))
+         (if (not (and target (::db/direct target)))
          
            ;; Cancel the move.
            (update-in db [::db/current-move] dissoc ::db/start-location)

@@ -2,13 +2,16 @@
   (:require [maverick.db :as db]
             [maverick.rules.protocol :as proto]))
 
-(defn- filter-attacks
-  "Filter the attacking moves from the threats."
-  [threats attack-color selected-depth]
+(defn- select-moves
+  "Select move locations from the set of threats which match a given criteria.
+   - `threats` The map of all threats.
+   - `attack-color` The `:color` of the player whose turn it is to move.
+   - `direct?` Whether to select direct (as opposed to indirect) threats."
+  [threats attack-color direct?]
   (->> threats 
-       (filter (fn [[_ {:keys [::db/color ::db/depth]}]]
+       (filter (fn [[_ {:keys [::db/color ::db/direct]}]]
                  (and (not= color attack-color)
-                      (= depth selected-depth))))
+                      (= direct direct?))))
        (into {})
        (keys)
        (set)))
@@ -35,15 +38,17 @@
 (defn threats
   "The information about the squares on the board threatened by a piece this 
    move.
-   - The rules of the game.
-   - The application database.
-   - The location of the piece being moved.
+   - `rules` The rules of the game.
+   - `db`    The application database.
+   - `loc`   The location of the piece being moved.
 
    Returns a map indexed by location of the square being threatened which 
    contains:
-   - `:depth` The number of pieces blocking the attack on the square.
-   - `:kind` The kind of piece occupying the square (optional).
-   - `:color` The color of the piece occupying the square (optional).
+   - `:direct` Whether the threat is direct and therefore a legal next move.
+   Indirect threats are those which would be legal moves if a single enemy 
+   piece was removed from the board.
+   - `:kind`   The kind of piece occupying the square (optional).
+   - `:color`  The color of the piece occupying the square (optional).
    - `:took-location` The location of the piece that was taken as a result of 
    a move. This is only needed for moves like en passant which have
    a different location than the square being threatened."
@@ -52,29 +57,29 @@
 
 (defn targets
   "The set of locations for squares where the piece can be legally moved.
-   - The rules of the game.
-   - The application database.
-   - The location of the piece being moved."
+   - `rules` The rules of the game.
+   - `db`    The application database.
+   - `loc`   The location of the piece being moved."
   [rules db loc]
   (let [color (-> db ::db/current-move ::db/color)]
     (-> (proto/threats rules db loc)
-        (filter-attacks color 0))))
+        (select-moves color true))))
 
 (defn xrays
    "The set of locations for squares which would be targeted except for a 
    single blocking enemy piece. 
-   - The rules of the game.
-   - The application database.
-   - The location of the piece being moved."
+   - `rules` The rules of the game.
+   - `db`    The application database.
+   - `loc`   The location of the piece being moved."
   [rules db loc]
   (let [color (-> db ::db/current-move ::db/color)]
     (-> (proto/threats rules db loc)
-        (filter-attacks color 1))))
+        (select-moves color false))))
                                        
 (defn game-result
   "The result of the game, if completed.
-   - The rules of the game.
-   - The application database.
+   - `rules` The rules of the game.
+   - `db`    The application database.
    
    Returns `:white-wins`, `:black-wins`, `:draw` or `nil` if the game 
    continues."
